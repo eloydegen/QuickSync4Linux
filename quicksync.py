@@ -36,11 +36,16 @@ parser.add_argument('-v', '--verbose', action='count', default=0, help='print co
 args = parser.parse_args()
 
 # open serial port
-ser = serial.Serial(
-    args.device,
-    args.baud,
-    write_timeout=at.Delay.TimeoutWrite
-)
+try:
+    ser = serial.Serial(
+        args.device,
+        args.baud,
+        write_timeout=at.Delay.TimeoutWrite
+    )
+except serial.serialutil.SerialException as e:
+    if e.args[0] == 13:
+        exit("Insufficient permissions on device file " + args.device + ", exiting")
+
 if(args.verbose): print('Connected to:', ser.name)
 
 def readVcfFile(path):
